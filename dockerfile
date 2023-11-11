@@ -9,5 +9,5 @@ RUN mvn -B package --file /app/pom.xml -DskipTests
 # Deployment Stage
 FROM openjdk:17-alpine
 EXPOSE 8383
-COPY --from=build /app/target/cicd-demo-1.3.jar cicd-demo-1.3.jar
-ENTRYPOINT ["java", "-jar", "cicd-demo-1.3.jar"]
+COPY --from=build /app/target/Assignment1_2-0.0.1-SNAPSHOT.jar app.jar
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

@@ -1,31 +1,23 @@
-name: CI Workflow
-
-on:
-  push:
-    branches: [main, master]
-  pull_request:
-    branches: [main, master]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-          
-      - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots verify
-
-      - name: Build Docker Image
-        run: |
-          export SHELL=/bin/bash
-          docker build -f ./Dockerfile -t local/cicd-demo .
-          echo -n "Verifying images: "
-          docker images
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cicd-demo
+  labels:
+    app: cicd-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cicd-demo
+  template:
+    metadata:
+      name: cicd-demo
+      labels:
+        app: cicd-demo
+    spec:
+      containers:
+        - name: cicd-demo
+          image: local/cicd-demo:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8383

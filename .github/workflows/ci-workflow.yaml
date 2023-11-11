@@ -1,33 +1,48 @@
-name: GitHub Action Java CI/CD with Maven
+name: CD - Deploy to Minikube using Github Actions
 
 on:
   push:
-    branches: [ main ]
+    branches: [master]
   pull_request:
-    branches: [ main ]
+    branches: [master]
 
 jobs:
-  build:
-
+  job1:
+    name: Build and Deploy to Minikube
     runs-on: ubuntu-latest
-
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 17
-      uses: actions/setup-java@v1
-      with:
-        java-version: '17'
-        distribution: 'adopt'
-        cache: maven
-    - name: Build with Maven
-      run: mvn clean install
-
-    - name: Build & push Docker image
-      uses: mr-smithers-excellent/docker-build-push@v5
-      with:
-        image: cmakkaya/my-github-action-app
-        tags: latest
-        registry: docker.io
-        dockerfile: Dockerfile
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+      - uses: actions/checkout@v4
+      
+      - name: Start Minikube
+        id: minikube
+        uses: medyagh/setup-minikube@latest
+        
+      - name: Try the cluster!
+        run: kubectl get pods -A
+        
+      - name: Build Image
+        run: |
+          export SHELL=/bin/bash
+          eval $(minikube -p minikube docker-env)
+          docker build -f ./Dockerfile -t local/cicd-demo .
+          echo -n "Verifying images: "
+          docker images
+        
+      - name: Deploy to Minikube
+        run: |
+          kubectl apply -f deploy-cicd-demo.yaml
+          kubectl wait --for=condition=Ready pod -l app=cicd-demo
+          kubectl get all
+        
+      - name: Test service URLs
+        run: |
+          echo "SERVICE_URL=$(minikube service cicd-demo --url)"
+          kubectl port-forward service/cicd-demo 8383:8383 &> /dev/null &
+          sleep 5
+          kubectl port-forward service/cicd-demo 8383:8383 &> /dev/null &
+          curl -i http://localhost:8383/
+          
+      - name: Cleanup
+        run: |
+          eval $(minikube docker-env -u)
+          minikube delete

@@ -18,6 +18,12 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '17'
+          distribution: 'adopt'
+          
+      - name: Use Node 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
 
       - name: Build with Maven
         run: mvn --batch-mode --update-snapshots verify
@@ -28,3 +34,5 @@ jobs:
           docker build -f ./Dockerfile -t local/cicd-demo .
           echo -n "Verifying images: "
           docker images
+
+    

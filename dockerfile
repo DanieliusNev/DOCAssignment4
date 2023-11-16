@@ -4,10 +4,10 @@ RUN mkdir -p /app
 WORKDIR /app
 COPY pom.xml /app
 COPY src /app/src
-RUN mvn -B package --file /app/pom.xml -DskipTests
+RUN mvn -B package --file pom.xml -DskipTests
 
 # Deployment Stage
-FROM adoptopenjdk:17-jre-hotspot
-EXPOSE 8383
-COPY --from=build /app/target/Assignment1_2-0.0.1-SNAPSHOT.jar app.jar
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+FROM eclipse-temurin:17-jre-hotspot
+EXPOSE 8080
+COPY --from=build /app/target/*jar Assignment1_2-0.0.1-SNAPSHOT.jar
+ENTRYPOINT ["java", "-jar", "Assignment1_2-0.0.1-SNAPSHOT.jar"]

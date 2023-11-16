@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cicd-tabloid
+  labels:
+    app: cicd-tabloid
+spec:
+  replicas: 2 # pod count
+  selector:
+    matchLabels:
+      app: cicd-tabloid
+  template:
+    metadata:
+      name: cicd-tabloid
+      labels:
+        app: cicd-tabloid
+    spec:
+      containers:
+        - name: cicd-tabloid
+          image: cicd-tabloid:latest
+          imagePullPolicy: Never #IfNotPresent
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cicd-tabloid
+  labels:
+    app:  cicd-tabloid
+spec:
+  selector:
+    app: cicd-tabloid
+  ports:
+    - protocol: "TCP"
+      port: 8080 # where the service is running
+      targetPort: 8080 # the port exposed by the service
+  type: NodePort # type of service

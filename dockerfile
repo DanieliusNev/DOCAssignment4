@@ -7,7 +7,7 @@ COPY src /app/src
 RUN mvn -B package --file pom.xml -DskipTests
 
 # Deployment Stage
-FROM eclipse-temurin:17-jre-hotspot
+FROM eclipse-temurin:latest
 EXPOSE 8080
 COPY --from=build /app/target/*jar Assignment1_2-0.0.1-SNAPSHOT.jar
 ENTRYPOINT ["java", "-jar", "Assignment1_2-0.0.1-SNAPSHOT.jar"]
